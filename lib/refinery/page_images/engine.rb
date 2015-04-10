@@ -11,7 +11,7 @@ module Refinery
 
       def self.register(tab)
         tab.name = ::I18n.t(:'refinery.plugins.refinery_page_images.tab_name')
-        tab.partial = "/refinery/admin/pages/tabs/images"
+        tab.partial = '/refinery/admin/pages/tabs/images'
       end
 
       def self.initialize_tabs!

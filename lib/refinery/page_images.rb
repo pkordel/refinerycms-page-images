@@ -5,14 +5,13 @@ module Refinery
   autoload :PageImagesGenerator, 'generators/refinery/page_images_generator'
 
   module PageImages
-
     class << self
       def root
         @root ||= Pathname.new(File.expand_path('../../../', __FILE__))
       end
 
       def factory_paths
-        @factory_paths ||= [ root.join('spec', 'factories').to_s ]
+        @factory_paths ||= [root.join('spec', 'factories').to_s]
       end
 
       def attach!
@@ -24,12 +23,12 @@ module Refinery
             Rails.logger.warn "PageImages is unable to find model class: #{model_class_name}"
             next
           end
-          model_class.send :has_many_page_images
+          model_class.send :many_page_images
         end
 
-        Refinery::Image.send :has_many, :image_pages, :dependent => :destroy
+        Refinery::Image.send :has_many, :image_pages, dependent: :destroy
 
-        # dosnt work wothout this...
+        # doesn't work without this...
         require root.join('app/decorators/controllers/refinery/admin/pages_controller_decorator.rb')
 
       end

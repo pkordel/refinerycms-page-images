@@ -1,44 +1,56 @@
+require 'image_attributes_parser'
+
 module Refinery
   module PageImages
     module Extension
-      def has_many_page_images
-        has_many :image_pages, proc { order('position ASC') }, :as => :page, :class_name => 'Refinery::ImagePage'
-        has_many :images, proc { order('position ASC') }, :through => :image_pages, :class_name => 'Refinery::Image'
+      def many_page_images
+        has_many :image_pages, proc { order('position ASC') },
+                 as: :page, class_name: 'Refinery::ImagePage'
+        has_many :images, proc { order('position ASC') },
+                 through: :image_pages, class_name: 'Refinery::Image'
         # accepts_nested_attributes_for MUST come before def images_attributes=
-        # this is because images_attributes= overrides accepts_nested_attributes_for.
+        # this is because images_attributes= overrides
+        # accepts_nested_attributes_for.
 
-        accepts_nested_attributes_for :images, :allow_destroy => false
+        accepts_nested_attributes_for :images, allow_destroy: false
 
-        # need to do it this way because of the way accepts_nested_attributes_for
-        # deletes an already defined images_attributes
+        # need to do it this way because of the way
+        # accepts_nested_attributes_for deletes an already defined
+        # images_attributes
         module_eval do
-          def images_attributes=(data)
-            data = data.reject {|_, data| data.blank?}
-            ids_to_keep = data.map{|_, d| d['image_page_id']}.compact
+          def images_attributes=(params)
+            data = params.reject { |_key, value| value.blank? }
+            ids_to_keep = data.map { |_, d| d['image_page_id'] }.compact
+            image_pages_to_delete(ids_to_keep).destroy_all
+            update_or_create_image_pages(data)
+          end
 
-            image_pages_to_delete = if ids_to_keep.empty?
-              self.image_pages
+          def image_pages_to_delete(ids_to_keep)
+            if ids_to_keep.empty?
+              image_pages
             else
-              self.image_pages.where.not(:id => ids_to_keep)
+              image_pages
+                .where(Refinery::ImagePage.arel_table[:id].not_in(ids_to_keep))
             end
+          end
 
-            image_pages_to_delete.destroy_all
-
-            data.each do |i, image_data|
-              image_page_id, image_id, caption =
-                image_data.values_at('image_page_id', 'id', 'caption')
-
-              next if image_id.blank?
-
-              image_page = if image_page_id.present?
-                self.image_pages.find(image_page_id)
-              else
-                self.image_pages.build(:image_id => image_id)
-              end
-
-              image_page.position = i
-              image_page.caption = caption if Refinery::PageImages.captions
+          def update_or_create_image_pages(data)
+            objects = ImageAttributesParser.parse(data)
+            objects.each do |obj|
+              next if obj.image_id.blank?
+              image_page = find_or_initialize_image_page(obj)
+              image_page.position = obj.position
+              image_page.caption = obj.caption if Refinery::PageImages.captions
+              image_page.top_image = obj.top_image
               image_page.save
+            end
+          end
+
+          def find_or_initialize_image_page(obj)
+            if obj.image_page_id.present?
+              image_pages.find(obj.image_page_id)
+            else
+              image_pages.build(image_id: obj.image_id)
             end
           end
         end
@@ -47,13 +59,25 @@ module Refinery
       end
 
       module InstanceMethods
-
         def caption_for_image_index(index)
-          self.image_pages[index].try(:caption).presence || ""
+          image_pages[index].try(:caption).presence || ''
         end
 
         def image_page_id_for_image_index(index)
-          self.image_pages[index].try(:id)
+          image_pages[index].try(:id)
+        end
+
+        def top_image
+          candidate = image_pages.where(top_image: true).first
+          candidate && candidate.image
+        end
+
+        def top_image_for_image_index(index)
+          image_pages[index].try(:top_image)
+        end
+
+        def page_images
+          image_pages.where(top_image: false)
         end
       end
     end

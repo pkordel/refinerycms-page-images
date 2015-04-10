@@ -6,10 +6,8 @@ Refinery::Page.class_eval do
   def images_with_captions
     @images_with_captions = image_pages.map do |ref|
       OpenStruct.new(
-        {
-          image: Refinery::Image.find(ref.image_id),
-          caption: ref.caption || ''
-        }
+        image: Refinery::Image.find(ref.image_id),
+        caption: ref.caption || ''
       )
     end
   end
