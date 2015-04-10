@@ -11,7 +11,7 @@ module Refinery
 
       def self.register(tab)
         tab.name = ::I18n.t(:'refinery.plugins.refinery_page_images.tab_name')
-        tab.partial = "/refinery/admin/pages/tabs/images"
+        tab.partial = '/refinery/admin/pages/tabs/images'
       end
 
       def self.initialize_tabs!
@@ -24,9 +24,9 @@ module Refinery
         end
       end
 
-      initializer "register refinery_page_images plugin" do
+      initializer 'register refinery_page_images plugin' do
         Refinery::Plugin.register do |plugin|
-          plugin.name = "page_images"
+          plugin.name = 'page_images'
           plugin.hide_from_menu = true
         end
       end
