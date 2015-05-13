@@ -7,11 +7,12 @@ module Refinery
     self.captions = false
     self.wysiwyg = true
     self.enable_for = [
-      { :model => 'Refinery::Page', :tab => 'Refinery::Pages::Tab' },
+      { model: 'Refinery::Page', tab: 'Refinery::Pages::Tab' }
     ]
 
     if defined?(Refinery::Blog)
-      self.enable_for << { :model => 'Refinery::Blog::Post', :tab => 'Refinery::Blog::Tab' }
+      enable_for << { model: 'Refinery::Blog::Post',
+                      tab: 'Refinery::Blog::Tab' }
     end
 
     config.instance_eval do
@@ -24,10 +25,10 @@ module Refinery
       end
 
       private
+
       def extract_enabled_option(key)
         enable_for.map { |enable_for| enable_for[key] }.compact
       end
     end
-
   end
 end

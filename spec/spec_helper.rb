@@ -14,8 +14,10 @@ Rails.backtrace_cleaner.remove_silencers!
 RSpec.configure do |config|
   config.mock_with :rspec
   config.treat_symbols_as_metadata_keys_with_true_values = true
-  config.filter_run :focus => true
+  config.filter_run focus: true
   config.run_all_when_everything_filtered = true
+  config.expose_current_running_example_as :example
+  config.infer_spec_type_from_file_location!
 end
 
 # set javascript driver for capybara
