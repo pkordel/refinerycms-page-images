@@ -35,7 +35,7 @@ module Refinery
           end
 
           def update_or_create_image_pages(data)
-            objects = ImageAttributesParser.parse(data)
+            objects = ImageAttributesParser.parse(data) || []
             objects.each do |obj|
               next if obj.image_id.blank?
               image_page = find_or_initialize_image_page(obj)
