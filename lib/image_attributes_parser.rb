@@ -13,7 +13,7 @@ class ImageAttributesParser
       position = e.first
       image_id, image_page_id, caption =
         e.last.values_at('id', 'image_page_id', 'caption')
-      top_image = image_page_id == top_image_page_id ? true : false
+      top_image = image_page_id == top_image_page_id
       ary << ImagePageVO.new(image_id, image_page_id, position,
                              top_image, caption)
     end
